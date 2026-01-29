@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบส่งเกรด Pre degree | สำนักวิชาศึกษาทั่วไป</title>
     <link rel="icon" href="https://i.postimg.cc/qvNSwzD4/Logo-GE.png" type="image/png">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+    
     <style>
         body, html {
             margin: 0;
@@ -12,8 +15,10 @@
             height: 100%;
             width: 100%;
             overflow: hidden;
-            background-color: #f3f4f6; /* สีพื้นหลังเดียวกับ App เพื่อความเนียน */
+            background-color: #f3f4f6;
+            font-family: 'Sarabun', sans-serif;
         }
+
         iframe {
             position: absolute;
             top: 0;
@@ -21,40 +26,96 @@
             width: 100%;
             height: 100%;
             border: none;
+            /* ซ่อน iframe ไว้ก่อนจนกว่าจะโหลดเสร็จ */
+            opacity: 0; 
+            transition: opacity 0.5s ease-in;
+        }
+
+        /* --- ส่วนของหน้าจอ Loading --- */
+        #loading-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #1a73e8; /* สีน้ำเงิน Google */
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        .loading-text {
+            color: #555;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
 
-    <iframe id="app-frame"></iframe>
+    <div id="loading-screen">
+        <div class="spinner"></div>
+        <div class="loading-text">กำลังโหลดระบบ...</div>
+    </div>
+
+    <iframe id="app-frame" onload="onFrameLoad()"></iframe>
 
     <script>
         // ==========================================
-        // ตั้งค่า: วางลิงก์ Google Apps Script (Web App URL) ของคุณที่นี่
-        // (ต้องลงท้ายด้วย /exec เท่านั้น ห้ามใช้ /dev)
+        // ใส่ URL ที่ได้จาก Google Apps Script ตรงนี้
         // ==========================================
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzPd3EBbxeFudB6aUkC64CbbElMKLTtUiTtloZriYQm9o9AsYjQClcZOfxhO6YUDh_eqg/exec"; 
         // ==========================================
 
         function loadIframe() {
-            // ดึงค่าพารามิเตอร์จาก URL ของ GitHub (เช่น ?page=admin)
             const params = new URLSearchParams(window.location.search);
             const page = params.get('page');
             
             let finalUrl = GOOGLE_SCRIPT_URL;
 
-            // ถ้ามีพารามิเตอร์ page ส่งมา ให้ส่งต่อไปยัง Google Script
             if (page) {
-                // เช็คว่า URL เดิมมี ? อยู่แล้วหรือไม่ เพื่อเชื่อม Query String ให้ถูก
                 const separator = finalUrl.includes('?') ? '&' : '?';
                 finalUrl += separator + 'page=' + page;
             }
 
-            // โหลด URL ปลายทางลงใน Iframe
             document.getElementById('app-frame').src = finalUrl;
         }
 
-        // เริ่มทำงานเมื่อเปิดหน้าเว็บ
+        // ฟังก์ชันทำงานเมื่อ Iframe โหลดเสร็จ
+        function onFrameLoad() {
+            const loader = document.getElementById('loading-screen');
+            const iframe = document.getElementById('app-frame');
+
+            // หน่วงเวลาเล็กน้อยเพื่อให้แน่ใจว่าหน้าเว็บข้างในเรนเดอร์เสร็จจริง
+            setTimeout(() => {
+                loader.style.opacity = '0';   // ค่อยๆ จางหน้าโหลด
+                iframe.style.opacity = '1';   // ค่อยๆ แสดง iframe
+                
+                // รอให้จางหายไปจนหมดแล้วค่อยซ่อน div
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 500);
+            }, 1500); // หน่วงเวลา 1.5 วินาที (ปรับได้) เพื่อให้ผู้ใช้เห็นว่าโหลดเสร็จแล้ว
+        }
+
         loadIframe();
     </script>
 
