@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบส่งเกรด Pre degree | สำนักวิชาศึกษาทั่วไป</title>
+    <link rel="icon" href="https://i.postimg.cc/qvNSwzD4/Logo-GE.png" type="image/png">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            background-color: #f3f4f6; /* สีพื้นหลังเดียวกับ App เพื่อความเนียน */
+        }
+        iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+    <iframe id="app-frame"></iframe>
+
+    <script>
+        // ==========================================
+        // ตั้งค่า: วางลิงก์ Google Apps Script (Web App URL) ของคุณที่นี่
+        // (ต้องลงท้ายด้วย /exec เท่านั้น ห้ามใช้ /dev)
+        // ==========================================
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzPd3EBbxeFudB6aUkC64CbbElMKLTtUiTtloZriYQm9o9AsYjQClcZOfxhO6YUDh_eqg/exec"; 
+        // ==========================================
+
+        function loadIframe() {
+            // ดึงค่าพารามิเตอร์จาก URL ของ GitHub (เช่น ?page=admin)
+            const params = new URLSearchParams(window.location.search);
+            const page = params.get('page');
+            
+            let finalUrl = GOOGLE_SCRIPT_URL;
+
+            // ถ้ามีพารามิเตอร์ page ส่งมา ให้ส่งต่อไปยัง Google Script
+            if (page) {
+                // เช็คว่า URL เดิมมี ? อยู่แล้วหรือไม่ เพื่อเชื่อม Query String ให้ถูก
+                const separator = finalUrl.includes('?') ? '&' : '?';
+                finalUrl += separator + 'page=' + page;
+            }
+
+            // โหลด URL ปลายทางลงใน Iframe
+            document.getElementById('app-frame').src = finalUrl;
+        }
+
+        // เริ่มทำงานเมื่อเปิดหน้าเว็บ
+        loadIframe();
+    </script>
+
+</body>
+</html>
